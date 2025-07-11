@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>برنامج التسميد الزراعي</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            direction: rtl; /* Set text direction to right-to-left for Arabic */
+            text-align: right; /* Align text to the right */
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #2d3748;
+            background-color: #edf2f7;
+            transition: all 0.2s ease-in-out;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #4299e1;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #3182ce;
+        }
+        .btn-secondary {
+            background-color: #a0aec0;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #718096;
+        }
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        .program-card {
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .program-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        .program-card p {
+            margin-bottom: 3px;
+            color: #4a5568;
+            font-size: 0.95rem;
+        }
+        .program-card .actions {
+            display: flex;
+            justify-content: flex-end; /* Align buttons to the left (start in RTL) */
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .icon-btn {
+            padding: 8px 12px; /* Smaller padding for icon buttons */
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 1.2rem; /* Larger font size for icons */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-btn.edit-icon {
+            background-color: #48bb78; /* Green for edit */
+            color: white;
+        }
+        .icon-btn.edit-icon:hover {
+            background-color: #38a169;
+        }
+        .icon-btn.delete-icon {
+            background-color: #ef4444; /* Red for delete */
+            color: white;
+        }
+        .icon-btn.delete-icon:hover {
+            background-color: #dc2626;
+        }
+
+        /* Message Box Styles (for alerts) */
+        .message-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .message-box {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        .message-box h4 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+        .message-box p {
+            margin-bottom: 20px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+        .message-box .message-box-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .message-box button {
+            background-color: #4299e1;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .message-box button:hover {
+            background-color: #3182ce;
+        }
+        .message-box button.cancel-btn {
+            background-color: #6b7280; /* Gray for cancel */
+        }
+        .message-box button.cancel-btn:hover {
+            background-color: #4b5563;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4299e1;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Program Details Modal Styles */
+        .program-details-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001; /* Higher than message-box-overlay */
+            overflow-y: auto; /* Allow scrolling for long content */
+        }
+        .program-details-box {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            max-width: 600px;
+            width: 90%;
+            text-align: right;
+            position: relative;
+            max-height: 90vh; /* Max height for scrollability */
+            overflow-y: auto; /* Enable scrolling within the box */
+        }
+        .program-details-box h3 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1a202c;
+            text-align: center;
+        }
+        .program-details-box p {
+            margin-bottom: 10px;
+            color: #2d3748;
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+        .program-details-box strong {
+            color: #4a5568;
+        }
+        .program-details-box .actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .program-details-close-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px; /* Position to the left for RTL */
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #718096;
+            transition: color 0.2s ease-in-out;
+        }
+        .program-details-close-btn:hover {
+            color: #2d3748;
+        }
+
+        /* Advertisement Modal Styles */
+        .ad-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* Higher than other modals */
+        }
+        .ad-box {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            animation: fadeIn 0.5s ease-out;
+        }
+        .ad-box h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0d7040; /* Greenish color for ad title */
+            margin-bottom: 20px;
+        }
+        .ad-box p {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        .ad-box img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .ad-close-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px; /* Position to the left for RTL */
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #718096;
+            transition: color 0.2s ease-in-out;
+        }
+        .ad-close-btn:hover {
+            color: #2d3748;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">برنامج التسميد الزراعي</h1>
+
+        <!-- Form for adding/editing fertilization programs -->
+        <div class="bg-blue-50 p-6 rounded-xl shadow-md mb-8">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700">إضافة / تعديل برنامج تسميد</h2>
+            <form id="fertilization-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="program-name">اسم البرنامج:</label>
+                    <input type="text" id="program-name" placeholder="مثال: تسميد القمح - المرحلة الأولى" required>
+                </div>
+                <div class="form-group">
+                    <label for="crop-type">نوع المحصول:</label>
+                    <input type="text" id="crop-type" placeholder="مثال: قمح، طماطم، ذرة" required>
+                </div>
+                <div class="form-group">
+                    <label for="growth-stage">مرحلة النمو:</label>
+                    <input type="text" id="growth-stage" placeholder="مثال: الإنبات، التزهير، الإثمار" required>
+                </div>
+                <div class="form-group">
+                    <label for="soil-ph">درجة حموضة التربة (pH):</label>
+                    <input type="number" id="soil-ph" step="0.1" min="0" max="14" placeholder="مثال: 7.0">
+                </div>
+                <div class="form-group">
+                    <label for="soil-n">النيتروجين في التربة (N - جزء في المليون):</label>
+                    <input type="number" id="soil-n" step="0.1" placeholder="مثال: 50">
+                </div>
+                <div class="form-group">
+                    <label for="soil-p">الفسفور في التربة (P - جزء في المليون):</label>
+                    <input type="number" id="soil-p" step="0.1" placeholder="مثال: 25">
+                </div>
+                <div class="form-group">
+                    <label for="soil-k">البوتاسيوم في التربة (K - جزء في المليون):</label>
+                    <input type="number" id="soil-k" step="0.1" placeholder="مثال: 150">
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="fertilizers-used">الأسمدة المستخدمة (النوع، الكمية، طريقة الإضافة):</label>
+                    <textarea id="fertilizers-used" rows="4" placeholder="مثال: يوريا 46% - 100 كجم/فدان - تسميد أرضي&#10;سوبر فوسفات - 50 كجم/فدان - خلط مع التربة"></textarea>
+                </div>
+                <div class="form-group md:col-span-2">
+                    <label for="notes">ملاحظات إضافية:</label>
+                    <textarea id="notes" rows="3" placeholder="أي ملاحظات حول البرنامج أو الظروف"></textarea>
+                </div>
+                <div class="md:col-span-2 flex justify-center gap-4 mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <span id="add-edit-button-text">إضافة برنامج</span>
+                    </button>
+                    <button type="button" id="get-recommendation-btn" class="btn btn-primary">
+                        مقترح تسميد 
+                    </button>
+                    <button type="button" id="clear-form-btn" class="btn btn-secondary">مسح النموذج</button>
+                </div>
+            </form>
+
+            <!-- LLM Recommendation Display Area -->
+            <div id="recommendation-output" class="mt-8 p-4 bg-white rounded-lg shadow-inner border border-blue-200" style="display: none;">
+                <h3 class="text-xl font-semibold mb-4 text-blue-800">مقترح التسميد من</h3>
+                <div id="recommendation-content" class="text-gray-700 leading-relaxed whitespace-pre-wrap"></div>
+                <div id="recommendation-loading" class="text-center py-4" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <p class="text-blue-600">جاري الحصول على المقترح...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Display area for saved programs -->
+        <div class="bg-gray-50 p-6 rounded-xl shadow-md">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700">برامج التسميد المحفوظة</h2>
+            <div class="form-group mb-4">
+                <label for="search-input">البحث عن برنامج:</label>
+                <input type="text" id="search-input" placeholder="ابحث بالاسم، المحصول، أو مرحلة النمو...">
+            </div>
+            <div id="programs-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <p class="text-gray-600 text-center col-span-full" id="no-programs-message">لا توجد برامج تسميد محفوظة بعد.</p>
+            </div>
+            <div class="flex justify-center gap-4 mt-6">
+                <button id="save-all-btn" class="btn btn-primary">حفظ الكل</button>
+                <button id="load-all-btn" class="btn btn-secondary">تحميل الكل</button>
+                <button id="clear-all-btn" class="btn btn-danger">مسح جميع البرامج</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Box Overlay (for general alerts/confirmations) -->
+    <div id="message-box-overlay" class="message-box-overlay" style="display: none;">
+        <div class="message-box">
+            <h4 id="message-box-title"></h4>
+            <p id="message-box-content"></p>
+            <div class="message-box-buttons">
+                <button id="message-box-ok-btn">موافق</button>
+                <button id="message-box-cancel-btn" class="cancel-btn">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Program Details Modal Overlay -->
+    <div id="program-details-overlay" class="program-details-overlay" style="display: none;">
+        <div class="program-details-box">
+            <button class="program-details-close-btn" id="program-details-close-btn">&times;</button>
+            <h3 id="program-details-name"></h3>
+            <div id="program-details-content">
+                <!-- Details will be populated here by JavaScript -->
+            </div>
+            <!-- Removed Edit/Delete buttons from modal as they are now in the card -->
+        </div>
+    </div>
+
+    <!-- Advertisement Modal Overlay -->
+    <div id="ad-overlay" class="ad-overlay" style="display: none;">
+        <div class="ad-box">
+            <button class="ad-close-btn" id="ad-close-btn">&times;</button>
+            <h3>إعلان خاص: حلول تسميد مبتكرة!</h3>
+            <img src="https://blogger.googleusercontent.com/img/a/AVvXsEgVKjQt4RiSNiKTbMfKAXixFPfVWGYqsyltrnUnM4ITO02_s7FORByRpTEuhmWBv6_9lAIuhwpo01tZRSi7KhP7SEIh48W4PBhXHwjBoVtO31iMlOHVkx51VpbjnUd8EnkECkacvApu5NS1KtgMa9btCPXFDdF2Qu2bWI1BR80qQ0054Kin6qMjhoHJDw" alt="Fertilizer Solutions Ad" onerror="this.onerror=null;this.src='https://placehold.co/500x300/4CAF50/FFFFFF?text=Fertilizer+Solutions';">
+            <p>اكتشف أحدث منتجاتنا لتحسين إنتاجية محصولك وتقليل التكاليف. حلول متكاملة لتربة صحية ونمو مزدهر!</p>
+            <button class="btn btn-primary" onclick="window.open('#', '_blank'); hideAd();">اعرف المزيد</button>
+        </div>
+    </div>
+
+
+    <footer class="w-full flex items-center justify-center">
+        <p class="p-5"> تم التطوير بواسطة أحمد توحيد </p>
+    </footer>
+
+    <script>
+        // Array to store fertilization programs
+        let fertilizationPrograms = [];
+        let editingProgramIndex = -1; // -1 means no program is being edited
+
+        // Get DOM elements
+        const form = document.getElementById('fertilization-form');
+        const programNameInput = document.getElementById('program-name');
+        const cropTypeInput = document.getElementById('crop-type');
+        const growthStageInput = document.getElementById('growth-stage');
+        const soilPhInput = document.getElementById('soil-ph');
+        const soilNInput = document.getElementById('soil-n');
+        const soilPInput = document.getElementById('soil-p');
+        const soilKInput = document.getElementById('soil-k');
+        const fertilizersUsedInput = document.getElementById('fertilizers-used');
+        const notesInput = document.getElementById('notes');
+        const programsListDiv = document.getElementById('programs-list');
+        const noProgramsMessage = document.getElementById('no-programs-message');
+        const addEditButtonText = document.getElementById('add-edit-button-text');
+        const clearFormBtn = document.getElementById('clear-form-btn');
+        const getRecommendationBtn = document.getElementById('get-recommendation-btn');
+        const recommendationOutput = document.getElementById('recommendation-output');
+        const recommendationContent = document.getElementById('recommendation-content');
+        const recommendationLoading = document.getElementById('recommendation-loading');
+        const saveAllBtn = document.getElementById('save-all-btn');
+        const loadAllBtn = document = document.getElementById('load-all-btn');
+        const clearAllBtn = document.getElementById('clear-all-btn');
+        const searchInput = document.getElementById('search-input'); // New search input
+
+        // Message Box elements (for general alerts)
+        const messageBoxOverlay = document.getElementById('message-box-overlay');
+        const messageBoxTitle = document.getElementById('message-box-title');
+        const messageBoxContent = document.getElementById('message-box-content');
+        const messageBoxOkBtn = document.getElementById('message-box-ok-btn');
+        const messageBoxCancelBtn = document.getElementById('message-box-cancel-btn'); // New cancel button
+
+        // Program Details Modal elements
+        const programDetailsOverlay = document.getElementById('program-details-overlay');
+        const programDetailsName = document.getElementById('program-details-name');
+        const programDetailsContent = document.getElementById('program-details-content');
+        const programDetailsCloseBtn = document.getElementById('program-details-close-btn');
+
+        // Advertisement Modal elements
+        const adOverlay = document.getElementById('ad-overlay');
+        const adCloseBtn = document.getElementById('ad-close-btn');
+
+        // Declare variables to hold the current message box handlers
+        let currentMessageBoxOkHandler = null;
+        let currentMessageBoxCancelHandler = null;
+
+        // Ad interval variable
+        let adInterval;
+        const AD_DISPLAY_INTERVAL = 15 * 60 * 1000; // 15 minutes in milliseconds
+
+        /**
+         * Displays a custom message box instead of alert().
+         * @param {string} title - The title of the message box.
+         * @param {string} message - The content of the message.
+         * @param {function} [onConfirm] - Optional callback for confirmation actions (when OK is clicked).
+         * @param {function} [onCancel] - Optional callback for cancel actions (when Cancel is clicked or modal closed).
+         */
+        function showMessageBox(title, message, onConfirm = null, onCancel = null) {
+            messageBoxTitle.textContent = title;
+            messageBoxContent.textContent = message;
+            messageBoxOverlay.style.display = 'flex';
+
+            // Remove previous event listeners if they exist
+            if (currentMessageBoxOkHandler) {
+                messageBoxOkBtn.removeEventListener('click', currentMessageBoxOkHandler);
+            }
+            if (currentMessageBoxCancelHandler) {
+                messageBoxCancelBtn.removeEventListener('click', currentMessageBoxCancelHandler);
+            }
+
+            // Define the new OK handler
+            currentMessageBoxOkHandler = () => {
+                messageBoxOverlay.style.display = 'none';
+                if (onConfirm) {
+                    onConfirm();
+                }
+            };
+
+            // Define the new Cancel handler
+            currentMessageBoxCancelHandler = () => {
+                messageBoxOverlay.style.display = 'none';
+                if (onCancel) {
+                    onCancel();
+                }
+            };
+
+            // Add the new handlers
+            messageBoxOkBtn.addEventListener('click', currentMessageBoxOkHandler);
+            messageBoxCancelBtn.addEventListener('click', currentMessageBoxCancelHandler);
+
+            // Show/hide cancel button based on whether onCancel callback is provided
+            messageBoxCancelBtn.style.display = onCancel ? 'inline-block' : 'none';
+        }
+
+        // Close program details modal
+        programDetailsCloseBtn.addEventListener('click', () => {
+            programDetailsOverlay.style.display = 'none';
+        });
+
+        // Function to show the advertisement modal
+        function showAd() {
+            adOverlay.style.display = 'flex';
+        }
+
+        // Function to hide the advertisement modal and start the interval if not already running
+        function hideAd() {
+            adOverlay.style.display = 'none';
+            if (!adInterval) { // Start interval only if it's not already set
+                adInterval = setInterval(showAd, AD_DISPLAY_INTERVAL);
+            }
+        }
+
+        // Event listener for closing the ad modal
+        adCloseBtn.addEventListener('click', hideAd);
+
+        // Function to save programs to Local Storage
+        function savePrograms() {
+            try {
+                localStorage.setItem('fertilizationPrograms', JSON.stringify(fertilizationPrograms));
+                showMessageBox('نجاح', 'تم حفظ برامج التسميد بنجاح!');
+            } catch (e) {
+                console.error('Error saving to local storage:', e);
+                showMessageBox('خطأ', 'حدث خطأ أثناء الحفظ. قد تكون المساحة التخزينية ممتلئة.');
+            }
+        }
+
+        // Function to load programs from Local Storage
+        function loadPrograms() {
+            try {
+                const storedPrograms = localStorage.getItem('fertilizationPrograms');
+                if (storedPrograms) {
+                    fertilizationPrograms = JSON.parse(storedPrograms);
+                    renderPrograms();
+                } else {
+                    fertilizationPrograms = [];
+                    renderPrograms();
+                }
+            } catch (e) {
+                console.error('Error loading from local storage:', e);
+                showMessageBox('خطأ', 'حدث خطأ أثناء التحميل. قد يكون هناك تلف في البيانات المحفوظة.');
+                fertilizationPrograms = []; // Clear corrupted data
+                renderPrograms();
+            }
+        }
+
+        // Function to render programs in the display area
+        function renderPrograms(programsToRender = fertilizationPrograms) {
+            programsListDiv.innerHTML = ''; // Clear previous programs
+            if (programsToRender.length === 0) {
+                noProgramsMessage.style.display = 'block';
+            } else {
+                noProgramsMessage.style.display = 'none';
+                programsToRender.forEach((program, index) => {
+                    const programCard = document.createElement('div');
+                    programCard.className = 'program-card';
+                    programCard.innerHTML = `
+                        <h3 class="text-blue-700">${program.programName}</h3>
+                        <p><strong>المحصول:</strong> ${program.cropType}</p>
+                        <p><strong>مرحلة النمو:</strong> ${program.growthStage}</p>
+                        <div class="actions">
+                            <button class="icon-btn edit-icon" data-index="${index}" title="تعديل">&#9998;</button>
+                            <button class="icon-btn delete-icon" data-index="${index}" title="حذف">&#128465;</button>
+                            <button class="btn btn-secondary details-btn" data-index="${index}">تفاصيل</button>
+                        </div>
+                    `;
+                    programsListDiv.appendChild(programCard);
+                });
+
+                // Add event listeners for details, edit, and delete buttons
+                document.querySelectorAll('.details-btn').forEach(button => {
+                    button.addEventListener('click', (event) => showProgramDetails(event.target.dataset.index));
+                });
+                document.querySelectorAll('.edit-icon').forEach(button => {
+                    button.addEventListener('click', (event) => editProgram(event.target.dataset.index));
+                });
+                document.querySelectorAll('.delete-icon').forEach(button => {
+                    button.addEventListener('click', (event) => deleteProgram(event.target.dataset.index));
+                });
+            }
+        }
+
+        // Function to clear the form fields
+        function clearForm() {
+            programNameInput.value = '';
+            cropTypeInput.value = '';
+            growthStageInput.value = '';
+            soilPhInput.value = '';
+            soilNInput.value = '';
+            soilPInput.value = '';
+            soilKInput.value = '';
+            fertilizersUsedInput.value = '';
+            notesInput.value = '';
+            editingProgramIndex = -1; // Reset editing state
+            addEditButtonText.textContent = 'إضافة برنامج'; // Change button text back
+            recommendationOutput.style.display = 'none'; // Hide recommendation output
+            recommendationContent.innerHTML = ''; // Clear recommendation content
+        }
+
+        // Function to add or update a program
+        form.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent default form submission
+
+            const newProgram = {
+                programName: programNameInput.value,
+                cropType: cropTypeInput.value,
+                growthStage: growthStageInput.value,
+                soilPh: soilPhInput.value,
+                soilN: soilNInput.value,
+                soilP: soilPInput.value,
+                soilK: soilKInput.value,
+                fertilizersUsed: fertilizersUsedInput.value,
+                notes: notesInput.value
+            };
+
+            if (editingProgramIndex === -1) {
+                // Add new program
+                fertilizationPrograms.push(newProgram);
+                showMessageBox('نجاح', 'تمت إضافة البرنامج بنجاح!');
+            } else {
+                // Update existing program
+                fertilizationPrograms[editingProgramIndex] = newProgram;
+                showMessageBox('نجاح', 'تم تحديث البرنامج بنجاح!');
+            }
+
+            savePrograms(); // Save to local storage
+            renderPrograms(); // Update display
+            clearForm(); // Clear the form
+        });
+
+        // Function to fill the form for editing
+        function editProgram(index) {
+            const programToEdit = fertilizationPrograms[index];
+            programNameInput.value = programToEdit.programName;
+            cropTypeInput.value = programToEdit.cropType;
+            growthStageInput.value = programToEdit.growthStage;
+            soilPhInput.value = programToEdit.soilPh;
+            soilNInput.value = programToEdit.soilN;
+            soilPInput.value = programToEdit.soilP;
+            soilKInput.value = programToEdit.soilK;
+            fertilizersUsedInput.value = programToEdit.fertilizersUsed;
+            notesInput.value = programToEdit.notes;
+
+            editingProgramIndex = parseInt(index); // Set the index of the program being edited
+            addEditButtonText.textContent = 'تحديث البرنامج'; // Change button text
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top to show form
+            recommendationOutput.style.display = 'none'; // Hide recommendation output when editing
+            recommendationContent.innerHTML = ''; // Clear recommendation content
+            programDetailsOverlay.style.display = 'none'; // Close details modal if open
+        }
+
+        // Function to delete a program
+        function deleteProgram(index) {
+            showMessageBox(
+                'تأكيد الحذف',
+                'هل أنت متأكد أنك تريد حذف هذا البرنامج؟ لا يمكن التراجع عن هذا الإجراء.',
+                () => { // onConfirm callback
+                    fertilizationPrograms.splice(index, 1); // Remove program from array
+                    savePrograms(); // Save updated array
+                    renderPrograms(); // Update display
+                    clearForm(); // Clear form in case the deleted item was being edited
+                    showMessageBox('نجاح', 'تم حذف البرنامج بنجاح!');
+                    programDetailsOverlay.style.display = 'none'; // Close details modal after deletion
+                },
+                () => { // onCancel callback
+                    // Do nothing, just close the message box
+                }
+            );
+        }
+
+        // Function to show program details in a modal
+        function showProgramDetails(index) {
+            const program = fertilizationPrograms[index];
+            if (!program) return; // Should not happen if index is valid
+
+            programDetailsName.textContent = program.programName;
+            programDetailsContent.innerHTML = `
+                <p><strong>المحصول:</strong> ${program.cropType}</p>
+                <p><strong>مرحلة النمو:</strong> ${program.growthStage}</p>
+                <p><strong>درجة حموضة التربة (pH):</strong> ${program.soilPh || 'غير محدد'}</p>
+                <p><strong>النيتروجين (N):</strong> ${program.soilN || 'غير محدد'} جزء في المليون</p>
+                <p><strong>الفسفور (P):</strong> ${program.soilP || 'غير محدد'} جزء في المليون</p>
+                <p><strong>البوتاسيوم (K):</strong> ${program.soilK || 'غير محدد'} جزء في المليون</p>
+                <p><strong>الأسمدة المستخدمة:</strong> <br>${program.fertilizersUsed.replace(/\n/g, '<br>') || 'لا توجد'}</p>
+                <p><strong>ملاحظات:</strong> <br>${program.notes.replace(/\n/g, '<br>') || 'لا توجد'}</p>
+            `;
+
+            programDetailsOverlay.style.display = 'flex'; // Show the modal
+        }
+
+
+        // Function to filter programs based on search input
+        searchInput.addEventListener('keyup', () => {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            if (searchTerm === '') {
+                renderPrograms(fertilizationPrograms); // Show all if search is empty
+                return;
+            }
+
+            const filteredPrograms = fertilizationPrograms.filter(program =>
+                program.programName.toLowerCase().includes(searchTerm) ||
+                program.cropType.toLowerCase().includes(searchTerm) ||
+                program.growthStage.toLowerCase().includes(searchTerm) ||
+                program.notes.toLowerCase().includes(searchTerm) ||
+                program.fertilizersUsed.toLowerCase().includes(searchTerm)
+            );
+            renderPrograms(filteredPrograms);
+        });
+
+
+        // Function to get fertilization recommendation from Gemini API
+        getRecommendationBtn.addEventListener('click', async () => {
+            const cropType = cropTypeInput.value;
+            const growthStage = growthStageInput.value;
+            const soilPh = soilPhInput.value;
+            const soilN = soilNInput.value;
+            const soilP = soilPInput.value;
+            const soilK = soilKInput.value;
+
+            if (!cropType || !growthStage) {
+                showMessageBox('خطأ', 'الرجاء إدخال نوع المحصول ومرحلة النمو للحصول على مقترح.');
+                return;
+            }
+
+            recommendationOutput.style.display = 'block';
+            recommendationContent.innerHTML = '';
+            recommendationLoading.style.display = 'block'; // Show loading spinner
+
+            const prompt = `بصفتك خبيرًا زراعيًا، قدم توصية تسميد لمحصول ${cropType} في مرحلة ${growthStage}.
+            تحليل التربة يظهر: درجة حموضة (pH) ${soilPh || 'غير محدد'}، نيتروجين (N) ${soilN || 'غير محدد'} جزء في المليون، فسفور (P) ${soilP || 'غير محدد'} جزء في المليون، بوتاسيوم (K) ${soilK || 'غير محدد'} جزء في المليون.
+            اقترح أسمدة محددة (مثل اليوريا، سوبر فوسفات، سلفات البوتاسيوم)، وكميات تقريبية لكل وحدة مساحة (مثل كجم/فدان)، وطرق التسميد الموصى بها (مثل التسميد الأرضي، التسميد بالري، الرش الورقي).
+            إذا كانت أي قيم لتحليل التربة غير متوفرة، افترض أنها متوسطة لتربة زراعية نموذجية. يرجى تقديم الإجابة باللغة العربية.`;
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = "AIzaSyDvgn0YgBo10gOB6a7LV_tg1wk0X01zRjs"; // Leave this as-is; Canvas will provide the key.
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API error: ${response.status} - ${errorData.error.message || 'Unknown error'}`);
+                }
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    recommendationContent.innerHTML = text.replace(/\n/g, '<br>'); // Display response, preserve newlines
+                } else {
+                    recommendationContent.textContent = 'من تقديم توصية في الوقت الحالي. يرجى المحاولة مرة أخرى.';
+                }
+            } catch (error) {
+                console.error('Error fetching recommendation:', error);
+                recommendationContent.textContent = `حدث خطأ: ${error.message}. يرجى التحقق من اتصالك بالإنترنت أو المحاولة لاحقًا.`;
+            } finally {
+                recommendationLoading.style.display = 'none'; // Hide loading spinner
+            }
+        });
+
+        // Event listeners for control buttons
+        clearFormBtn.addEventListener('click', clearForm);
+        saveAllBtn.addEventListener('click', savePrograms);
+        loadAllBtn.addEventListener('click', loadPrograms);
+        clearAllBtn.addEventListener('click', () => {
+            showMessageBox(
+                'تأكيد المسح',
+                'هل أنت متأكد أنك تريد مسح جميع برامج التسميد المحفوظة؟ لا يمكن التراجع عن هذا الإجراء.',
+                () => { // onConfirm callback
+                    localStorage.removeItem('fertilizationPrograms');
+                    fertilizationPrograms = [];
+                    renderPrograms();
+                    showMessageBox('نجاح', 'تم مسح جميع البرامج بنجاح!');
+                },
+                () => { // onCancel callback
+                    // Do nothing, just close the message box
+                }
+            );
+        });
+
+        // Load programs when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPrograms();
+            showAd(); // Show ad immediately on page load
+            // The interval for subsequent ads will now be started only after the first ad is dismissed.
+        });
+    </script>
+</body>
+</html>
